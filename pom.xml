@@ -6,7 +6,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.sitoolkit.util.bth</groupId>
   <artifactId>sit-util-bth</artifactId>
-  <version>1.0.0-alpha.1</version>
+  <version>1.0.0-alpha.2-SNAPSHOT</version>
 
   <dependencies>
     <dependency>
