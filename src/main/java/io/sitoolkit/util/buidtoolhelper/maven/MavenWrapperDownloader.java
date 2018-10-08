@@ -1,4 +1,4 @@
-package io.sitoolkit.util.buidtoolhelper.infra.maven;
+package io.sitoolkit.util.buidtoolhelper.maven;
 
 import java.io.File;
 import java.io.IOException;

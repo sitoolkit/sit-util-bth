@@ -9,13 +9,13 @@ This is Java library to provide following functionality.
 ## How to Use
 
 ```java
-import io.sitoolkit.util.buidtoolhelper.app.MavenProject;
+import io.sitoolkit.util.buidtoolhelper.MavenProject;
 
 public class Main {
 
   public static void main(String[] args) {
     MavenProject
-      .load(Paths.get("/path/to/your/maven/project"))
+      .load("/path/to/your/maven/project")
       .mvnw("clean", "package")
       .execute();
   }

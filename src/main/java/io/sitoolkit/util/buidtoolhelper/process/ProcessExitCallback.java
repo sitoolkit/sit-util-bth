@@ -1,4 +1,4 @@
-package io.sitoolkit.util.buidtoolhelper.infra.process;
+package io.sitoolkit.util.buidtoolhelper.process;
 
 @FunctionalInterface
 public interface ProcessExitCallback {

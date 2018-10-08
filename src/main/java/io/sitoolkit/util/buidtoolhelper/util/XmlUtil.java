@@ -1,4 +1,4 @@
-package io.sitoolkit.util.buidtoolhelper.infra.util;
+package io.sitoolkit.util.buidtoolhelper.util;
 
 import java.io.File;
 import java.util.logging.Level;

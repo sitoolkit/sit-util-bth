@@ -1,8 +1,9 @@
-package io.sitoolkit.util.buidtoolhelper.app;
+package io.sitoolkit.util.buidtoolhelper.maven;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import io.sitoolkit.util.buidtoolhelper.infra.maven.MavenUtils;
+import io.sitoolkit.util.buidtoolhelper.process.ProcessCommand;
 
 public class MavenProject {
 
@@ -13,13 +14,17 @@ public class MavenProject {
         this.projectDir = projectDir;
     }
 
-    public MavenCommand mvnw(String... params) {
-        return MavenCommand.build().setParams(params).sync(true);
+    public ProcessCommand mvnw(String... args) {
+        return new MavenCommand().currentDirectory(projectDir).args(args);
     }
 
     public static MavenProject load(Path projectDir) {
         MavenProject mvnPrj = new MavenProject(projectDir);
         MavenUtils.findAndInstall(projectDir);
         return mvnPrj;
+    }
+
+    public static MavenProject load(String projectDir) {
+        return load(Paths.get(projectDir));
     }
 }
