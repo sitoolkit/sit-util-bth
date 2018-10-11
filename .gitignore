@@ -1,1 +1,3 @@
 /target/
+/gradle-sample/.gradle/
+/gradle-sample/build/
