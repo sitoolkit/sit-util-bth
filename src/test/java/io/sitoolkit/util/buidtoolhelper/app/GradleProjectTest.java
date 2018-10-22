@@ -12,17 +12,7 @@ public class GradleProjectTest {
 
     @Test
     public void test() {
-        GradleProject
-                .load(Paths.get("gradle-sample"))
-                .gradlew("clean", "jar")
-                .stdout(line -> log.info(line)).execute();
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testNoMavenWrapperProject() {
-        GradleProject
-                .load(Paths.get("."))
-                .gradlew("clean", "jar")
+        GradleProject.load(Paths.get("gradle-sample")).gradlew("clean", "jar")
                 .stdout(line -> log.info(line)).execute();
     }
 
