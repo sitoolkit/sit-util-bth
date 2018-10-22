@@ -11,11 +11,15 @@ public class MavenProject {
 
     private MavenProject(Path projectDir) {
         super();
-        this.projectDir = projectDir;
+        this.projectDir = projectDir.toAbsolutePath().normalize();
     }
 
     public ProcessCommand mvnw(String... args) {
         return new MavenCommand().currentDirectory(projectDir).args(args);
+    }
+
+    public boolean available() {
+        return projectDir.resolve("pom.xml").toFile().exists();
     }
 
     public static MavenProject load(Path projectDir) {

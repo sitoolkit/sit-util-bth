@@ -11,11 +11,15 @@ public class GradleProject {
 
     private GradleProject(Path projectDir) {
         super();
-        this.projectDir = projectDir;
+        this.projectDir = projectDir.toAbsolutePath().normalize();
     }
 
     public ProcessCommand gradlew(String... args) {
         return new GradleCommand().currentDirectory(projectDir).args(args);
+    }
+
+    public boolean available() {
+        return projectDir.resolve("build.gradle").toFile().exists();
     }
 
     public static GradleProject load(Path projectDir) {
