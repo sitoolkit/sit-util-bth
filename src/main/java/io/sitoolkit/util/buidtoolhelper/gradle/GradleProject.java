@@ -24,7 +24,9 @@ public class GradleProject {
 
     public static GradleProject load(Path projectDir) {
         GradleProject grdlPrj = new GradleProject(projectDir);
-        GradleUtils.findAndInstall(projectDir);
+        if (grdlPrj.available()) {
+            GradleUtils.findAndInstall(projectDir);
+        }
         return grdlPrj;
     }
 

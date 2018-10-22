@@ -24,7 +24,9 @@ public class MavenProject {
 
     public static MavenProject load(Path projectDir) {
         MavenProject mvnPrj = new MavenProject(projectDir);
-        MavenUtils.findAndInstall(projectDir);
+        if (mvnPrj.available()) {
+            MavenUtils.findAndInstall(projectDir);
+        }
         return mvnPrj;
     }
 
