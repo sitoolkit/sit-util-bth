@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 public class ProcessCommand {
 
-    private static Path defaultCurrentDirectory = Paths.get("");
+    private static Path defaultCurrentDirectory = Paths.get(".");
     private static ProcessExecutor processExecutor = new ProcessExecutor();
     private Path currentDirectory;
     private Map<String, String> env = new HashMap<>();
