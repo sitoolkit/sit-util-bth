@@ -1,6 +1,6 @@
-package io.sitoolkit.util.buidtoolhelper.proxysetting;
+package io.sitoolkit.util.buildtoolhelper.proxysetting;
 
-import io.sitoolkit.util.buidtoolhelper.maven.MavenProxyUtils;
+import io.sitoolkit.util.buildtoolhelper.maven.MavenProxyUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

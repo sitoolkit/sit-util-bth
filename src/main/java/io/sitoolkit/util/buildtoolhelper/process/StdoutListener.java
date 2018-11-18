@@ -1,4 +1,4 @@
-package io.sitoolkit.util.buidtoolhelper.process;
+package io.sitoolkit.util.buildtoolhelper.process;
 
 public interface StdoutListener {
 

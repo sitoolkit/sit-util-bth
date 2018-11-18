@@ -1,9 +1,9 @@
-package io.sitoolkit.util.buidtoolhelper.gradle;
+package io.sitoolkit.util.buildtoolhelper.gradle;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import io.sitoolkit.util.buidtoolhelper.process.ProcessCommand;
+import io.sitoolkit.util.buildtoolhelper.process.ProcessCommand;
 
 public class GradleProject {
 

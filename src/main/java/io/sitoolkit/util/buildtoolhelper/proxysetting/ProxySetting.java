@@ -1,4 +1,4 @@
-package io.sitoolkit.util.buidtoolhelper.proxysetting;
+package io.sitoolkit.util.buildtoolhelper.proxysetting;
 
 import java.util.HashMap;
 

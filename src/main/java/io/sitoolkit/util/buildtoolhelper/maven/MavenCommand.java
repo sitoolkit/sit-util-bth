@@ -1,6 +1,6 @@
-package io.sitoolkit.util.buidtoolhelper.maven;
+package io.sitoolkit.util.buildtoolhelper.maven;
 
-import io.sitoolkit.util.buidtoolhelper.process.ProcessCommand;
+import io.sitoolkit.util.buildtoolhelper.process.ProcessCommand;
 
 public class MavenCommand extends ProcessCommand {
 

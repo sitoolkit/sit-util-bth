@@ -1,10 +1,10 @@
-package io.sitoolkit.util.buidtoolhelper.app;
+package io.sitoolkit.util.buildtoolhelper.app;
 
 import java.nio.file.Paths;
 
 import org.junit.Test;
 
-import io.sitoolkit.util.buidtoolhelper.gradle.GradleProject;
+import io.sitoolkit.util.buildtoolhelper.gradle.GradleProject;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

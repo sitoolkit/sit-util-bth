@@ -1,9 +1,9 @@
-package io.sitoolkit.util.buidtoolhelper.maven;
+package io.sitoolkit.util.buildtoolhelper.maven;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import io.sitoolkit.util.buidtoolhelper.process.ProcessCommand;
+import io.sitoolkit.util.buildtoolhelper.process.ProcessCommand;
 
 public class MavenProject {
 

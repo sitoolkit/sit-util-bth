@@ -1,4 +1,4 @@
-package io.sitoolkit.util.buidtoolhelper.maven;
+package io.sitoolkit.util.buildtoolhelper.maven;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 import org.apache.maven.wrapper.DefaultDownloader;
 import org.apache.maven.wrapper.Downloader;
 
-import io.sitoolkit.util.buidtoolhelper.UnExpectedException;
+import io.sitoolkit.util.buildtoolhelper.UnExpectedException;
 import io.tesla.proviso.archive.UnArchiver;
 import lombok.extern.slf4j.Slf4j;
 

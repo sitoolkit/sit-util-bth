@@ -1,9 +1,9 @@
-package io.sitoolkit.util.buidtoolhelper.proxysetting;
+package io.sitoolkit.util.buildtoolhelper.proxysetting;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.sitoolkit.util.buidtoolhelper.process.ProcessCommand;
+import io.sitoolkit.util.buildtoolhelper.process.ProcessCommand;
 
 public class ProxySettingProcessClient {
 

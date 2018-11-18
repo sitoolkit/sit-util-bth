@@ -1,4 +1,4 @@
-package io.sitoolkit.util.buidtoolhelper.gradle;
+package io.sitoolkit.util.buildtoolhelper.gradle;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 
-import io.sitoolkit.util.buidtoolhelper.UnExpectedException;
+import io.sitoolkit.util.buildtoolhelper.UnExpectedException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

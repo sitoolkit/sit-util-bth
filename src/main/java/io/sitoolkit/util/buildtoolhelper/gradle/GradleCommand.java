@@ -1,6 +1,6 @@
-package io.sitoolkit.util.buidtoolhelper.gradle;
+package io.sitoolkit.util.buildtoolhelper.gradle;
 
-import io.sitoolkit.util.buidtoolhelper.process.ProcessCommand;
+import io.sitoolkit.util.buildtoolhelper.process.ProcessCommand;
 
 public class GradleCommand extends ProcessCommand {
 

@@ -1,4 +1,4 @@
-package io.sitoolkit.util.buidtoolhelper.process;
+package io.sitoolkit.util.buildtoolhelper.process;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 
-import io.sitoolkit.util.buidtoolhelper.UnExpectedException;
+import io.sitoolkit.util.buildtoolhelper.UnExpectedException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

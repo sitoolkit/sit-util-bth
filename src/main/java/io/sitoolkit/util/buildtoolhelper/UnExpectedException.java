@@ -1,4 +1,4 @@
-package io.sitoolkit.util.buidtoolhelper;
+package io.sitoolkit.util.buildtoolhelper;
 
 public class UnExpectedException extends RuntimeException {
 

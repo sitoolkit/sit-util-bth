@@ -1,4 +1,4 @@
-package io.sitoolkit.util.buidtoolhelper.maven;
+package io.sitoolkit.util.buildtoolhelper.maven;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -13,8 +13,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import io.sitoolkit.util.buidtoolhelper.proxysetting.ProxySetting;
-import io.sitoolkit.util.buidtoolhelper.util.XmlUtil;
+import io.sitoolkit.util.buildtoolhelper.proxysetting.ProxySetting;
+import io.sitoolkit.util.buildtoolhelper.util.XmlUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

@@ -1,6 +1,6 @@
-package io.sitoolkit.util.buidtoolhelper.proxysetting;
+package io.sitoolkit.util.buildtoolhelper.proxysetting;
 
-import io.sitoolkit.util.buidtoolhelper.process.StdoutListener;
+import io.sitoolkit.util.buildtoolhelper.process.StdoutListener;
 
 public class ProxySettingStdoutListener implements StdoutListener {
 

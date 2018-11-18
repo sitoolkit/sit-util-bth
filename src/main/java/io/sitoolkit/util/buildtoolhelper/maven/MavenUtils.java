@@ -1,4 +1,4 @@
-package io.sitoolkit.util.buidtoolhelper.maven;
+package io.sitoolkit.util.buildtoolhelper.maven;
 
 import java.io.File;
 import java.nio.file.Path;
