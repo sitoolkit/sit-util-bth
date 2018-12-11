@@ -47,6 +47,8 @@ public class MavenProxyUtils {
                 String isActive = "";
                 String host = "";
                 String port = "";
+                String user = "";
+                String password = "";
                 String nonProxyHosts = "";
                 for (int idx = 0; idx < proxy.getLength(); idx++) {
                     Node proxyItem = proxy.item(idx);
@@ -61,6 +63,12 @@ public class MavenProxyUtils {
                         case "port":
                             port = proxyItem.getTextContent();
                             break;
+                        case "username":
+                            user = proxyItem.getTextContent();
+                            break;
+                        case "password":
+                            password = proxyItem.getTextContent();
+                            break;
                         case "nonProxyHosts":
                             nonProxyHosts = proxyItem.getTextContent();
                             break;
@@ -71,7 +79,7 @@ public class MavenProxyUtils {
 
                 if ("true".equals(isActive)) {
                     log.info("read maven proxy settings");
-                    proxySetting.setProxySettings(host, port, nonProxyHosts);
+                    proxySetting.setProxySettings(host, port, user, password, nonProxyHosts);
                     break;
                 }
             }
