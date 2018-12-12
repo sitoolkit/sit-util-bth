@@ -2,10 +2,13 @@ package io.sitoolkit.util.buildtoolhelper.proxysetting;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
-import io.sitoolkit.util.buildtoolhelper.config.ProxyUtils;
+import io.sitoolkit.util.buildtoolhelper.config.SitoolkitProxyUtils;
+import io.sitoolkit.util.buildtoolhelper.gradle.GradleProxyUtils;
 import io.sitoolkit.util.buildtoolhelper.maven.MavenProxyUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,24 +33,27 @@ public class ProxySettingService {
             return;
 
         try {
-            ProxySetting proxySetting = ProxyUtils.readProxySetting();
+            Optional<ProxySetting> proxySetting = Stream
+                    .of(SitoolkitProxyUtils.getInstance(), MavenProxyUtils.getInstance(),
+                            GradleProxyUtils.getInstance())
+                    .map(ProxyUtils::readProxySetting).filter(Optional::isPresent)
+                    .map(Optional::get).findFirst();
 
-            if (proxySetting == null) {
-                proxySetting = MavenProxyUtils.readProxySetting();
-            }
-
-            if (proxySetting == null) {
+            ProxySetting resultSetting;
+            if (proxySetting.isPresent()) {
+                resultSetting = proxySetting.get();
+            } else {
                 log.info("read registry proxy settings");
                 ProxySettingProcessClient client = new ProxySettingProcessClient();
-                proxySetting = client.getRegistryProxy();
+                resultSetting = client.getRegistryProxy();
 
-                if (proxySetting.isEnabled()) {
-                    if (!MavenProxyUtils.writeProxySetting(proxySetting))
+                if (resultSetting.isEnabled()) {
+                    if (!MavenProxyUtils.getInstance().writeProxySetting(resultSetting))
                         return;
                 }
             }
 
-            setProperties(proxySetting);
+            setProperties(resultSetting);
         } catch (Exception exp) {
             log.warn("set proxy failed", exp);
         } finally {

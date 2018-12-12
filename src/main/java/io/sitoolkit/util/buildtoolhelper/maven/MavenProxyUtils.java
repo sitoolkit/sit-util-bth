@@ -2,6 +2,7 @@ package io.sitoolkit.util.buildtoolhelper.maven;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.Optional;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -14,24 +15,29 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import io.sitoolkit.util.buildtoolhelper.proxysetting.ProxySetting;
+import io.sitoolkit.util.buildtoolhelper.proxysetting.ProxyUtils;
 import io.sitoolkit.util.buildtoolhelper.util.XmlUtil;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class MavenProxyUtils {
+public class MavenProxyUtils implements ProxyUtils {
+
+    @Getter
+    private static MavenProxyUtils instance = new MavenProxyUtils();
 
     private MavenProxyUtils() {
-        // TODO Auto-generated constructor stub
     }
 
-    public static ProxySetting readProxySetting() {
+    @Override
+    public Optional<ProxySetting> readProxySetting() {
         File settingsXml = MavenUtils.getUserSettingFile();
         return readProxySetting(settingsXml);
     }
 
-    public static ProxySetting readProxySetting(File settingsXml) {
+    public Optional<ProxySetting> readProxySetting(File settingsXml) {
         if (!settingsXml.exists()) {
-            return null;
+            return Optional.empty();
         }
 
         try {
@@ -84,15 +90,15 @@ public class MavenProxyUtils {
                 }
             }
 
-            return proxySetting;
+            return Optional.of(proxySetting);
 
         } catch (Exception exp) {
             log.warn("read settings.xml failed", exp);
-            return null;
+            return Optional.empty();
         }
     }
 
-    public static boolean writeProxySetting(ProxySetting proxySetting) {
+    public boolean writeProxySetting(ProxySetting proxySetting) {
         File settingsXml = MavenUtils.getUserSettingFile();
 
         try {
