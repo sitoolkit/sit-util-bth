@@ -1,14 +1,18 @@
 package io.sitoolkit.util.buildtoolhelper.config;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
-
+import io.sitoolkit.util.buildtoolhelper.proxysetting.ProxyProtocol;
 import io.sitoolkit.util.buildtoolhelper.proxysetting.ProxySetting;
 import io.sitoolkit.util.buildtoolhelper.proxysetting.ProxyUtils;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SitoolkitProxyUtils implements ProxyUtils {
 
     @Getter
@@ -18,18 +22,32 @@ public class SitoolkitProxyUtils implements ProxyUtils {
     }
 
     @Override
-    public Optional<ProxySetting> readProxySetting() {
+    public List<ProxySetting> readProxySetting() {
         SitoolkitConfig config = SitoolkitConfig.getInstance();
 
-        if (StringUtils.isEmpty(config.getProxyHost())) {
-            return Optional.empty();
-        } else {
-            ProxySetting proxySetting = new ProxySetting();
-            proxySetting.setProxySettings(config.getProxyHost(), config.getProxyPort(),
-                    config.getProxyUser(), config.getProxyPassword(), "");
+        List<ProxySetting> proxySettings = ProxyProtocol.allLowerCaseNames().stream()
+                .map((protocol) -> {
+                    ProxySetting proxySetting = new ProxySetting();
+                    String host = config.get("proxy." + protocol + ".host");
+                    if (StringUtils.isEmpty(host)) {
+                        return null;
+                    } else {
+                        proxySetting.setProxySettings(protocol, host,
+                                config.get("proxy." + protocol + ".port"),
+                                config.get("proxy." + protocol + ".user"),
+                                config.get("proxy." + protocol + ".password"),
+                                config.get("proxy." + protocol + ".nonProxyHosts"));
 
-            return Optional.of(proxySetting);
+                        return proxySetting;
+                    }
+                }).filter(Objects::nonNull).collect(Collectors.toList());
+
+        if (!proxySettings.isEmpty()) {
+            log.info("Use SI-Toolkit proxy settings: {}",
+                    SitoolkitConfig.getInstance().getConfigFilePath());
         }
+
+        return proxySettings;
     }
 
 }

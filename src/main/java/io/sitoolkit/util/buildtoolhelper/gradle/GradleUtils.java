@@ -1,6 +1,5 @@
 package io.sitoolkit.util.buildtoolhelper.gradle;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -48,8 +47,8 @@ public class GradleUtils {
         return "";
     }
 
-    public static File getUserSettingFile() {
-        File gradleUserHomeDir = new File(System.getProperty("user.home"), ".gradle");
-        return new File(gradleUserHomeDir, "gradle.properties");
+    public static Path getUserSettingFilePath() {
+        Path gradleUserHomeDir = Paths.get(System.getProperty("user.home"), ".gradle");
+        return gradleUserHomeDir.resolve("gradle.properties");
     }
 }

@@ -1,7 +1,7 @@
 package io.sitoolkit.util.buildtoolhelper.proxysetting;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface ProxyUtils {
-    public Optional<ProxySetting> readProxySetting();
+    public List<ProxySetting> readProxySetting();
 }

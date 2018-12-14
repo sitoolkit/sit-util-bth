@@ -1,16 +1,16 @@
 package io.sitoolkit.util.buildtoolhelper.gradle;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.Optional;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
-
+import io.sitoolkit.util.buildtoolhelper.proxysetting.ProxyProtocol;
 import io.sitoolkit.util.buildtoolhelper.proxysetting.ProxySetting;
 import io.sitoolkit.util.buildtoolhelper.proxysetting.ProxyUtils;
+import io.sitoolkit.util.buildtoolhelper.util.PropertiesUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,44 +24,44 @@ public class GradleProxyUtils implements ProxyUtils {
     }
 
     @Override
-    public Optional<ProxySetting> readProxySetting() {
-        File settingsFile = GradleUtils.getUserSettingFile();
-        return readProxySetting(settingsFile);
+    public List<ProxySetting> readProxySetting() {
+        Path settingFile = GradleUtils.getUserSettingFilePath();
+        return readProxySetting(settingFile);
     }
 
-    public Optional<ProxySetting> readProxySetting(File settingsFile) {
-        if (!settingsFile.exists()) {
-            return Optional.empty();
+    public List<ProxySetting> readProxySetting(Path settingFile) {
+        if (!settingFile.toFile().exists()) {
+            return Collections.emptyList();
         }
 
-        Properties properties = new Properties();
-        try (InputStream inputStream = new FileInputStream(settingsFile)) {
-            properties.load(inputStream);
-        } catch (FileNotFoundException e) {
-            log.info("{} was not found", settingsFile.getName());
-            return Optional.empty();
+        Properties properties;
+        try {
+            properties = PropertiesUtil.loadFile(settingFile);
         } catch (Exception e) {
-            log.warn("Failed to read {}", settingsFile.getName(), e);
-            return Optional.empty();
+            log.warn("Failed to read {}", settingFile, e);
+            return Collections.emptyList();
         }
 
-        String proxyPart = null;
-        if (StringUtils.isNotEmpty(properties.getProperty("systemProp.http.proxyHost"))) {
-            proxyPart = "http";
-        } else if (StringUtils.isNotEmpty(properties.getProperty("systemProp.https.proxyHost"))) {
-            proxyPart = "https";
-        } else {
-            return Optional.empty();
+        List<ProxySetting> proxySettings = ProxyProtocol.allLowerCaseNames().stream()
+                .map((protocol) -> {
+                    ProxySetting proxySetting = new ProxySetting();
+                    proxySetting.setProxySettings(protocol,
+                            getProxyProperty(properties, protocol, "proxyHost"),
+                            getProxyProperty(properties, protocol, "proxyPort"),
+                            getProxyProperty(properties, protocol, "proxyUser"),
+                            getProxyProperty(properties, protocol, "proxyPassword"),
+                            getProxyProperty(properties, protocol, "nonProxyHosts"));
+                    return proxySetting;
+                }).filter(Objects::nonNull).collect(Collectors.toList());
+
+        if (!proxySettings.isEmpty()) {
+            log.info("Use gradle proxy settings: {}", settingFile);
         }
 
-        ProxySetting proxySetting = new ProxySetting();
-        proxySetting.setProxySettings(
-                properties.getProperty("systemProp." + proxyPart + ".proxyHost"),
-                properties.getProperty("systemProp." + proxyPart + ".proxyPort"),
-                properties.getProperty("systemProp." + proxyPart + ".proxyUser"),
-                properties.getProperty("systemProp." + proxyPart + ".proxyPassword"),
-                properties.getProperty("systemProp." + proxyPart + ".nonProxyHosts"));
-        return Optional.ofNullable(proxySetting);
+        return proxySettings;
     }
 
+    private String getProxyProperty(Properties properties, String protocol, String attr) {
+        return properties.getProperty("systemProp." + protocol + "." + attr);
+    }
 }

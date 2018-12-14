@@ -45,4 +45,12 @@ public class XmlUtil {
 
         return child;
     }
+
+    public static String getTextContentByTagName(Element element, String tag) {
+        NodeList nodes = element.getElementsByTagName(tag);
+        if (nodes.getLength() == 0) {
+            return null;
+        }
+        return nodes.item(0).getTextContent();
+    }
 }

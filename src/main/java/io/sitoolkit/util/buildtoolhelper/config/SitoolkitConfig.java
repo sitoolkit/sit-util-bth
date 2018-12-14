@@ -1,11 +1,11 @@
 package io.sitoolkit.util.buildtoolhelper.config;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
+import io.sitoolkit.util.buildtoolhelper.util.PropertiesUtil;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -22,6 +22,8 @@ public class SitoolkitConfig {
     @Setter(AccessLevel.NONE)
     @Getter(AccessLevel.NONE)
     private static SitoolkitConfig instance;
+
+    private Properties properties;
 
     private String proxyHost;
     private String proxyPort;
@@ -41,18 +43,18 @@ public class SitoolkitConfig {
     }
 
     private void loadProperties() {
-        Properties properties = new Properties();
-        File configFile = new File(CONFIG_DIR, CONFIG_NAME);
+        Path configFile = getConfigFilePath();
+        if (!configFile.toFile().exists()) {
+            log.info("{} was not found", configFile);
+            return;
+        }
 
         log.info("Read config: {}", configFile);
 
-        try (InputStream inputStream = new FileInputStream(configFile)) {
-            properties.load(inputStream);
-        } catch (FileNotFoundException e) {
-            log.info("{} was not found", CONFIG_NAME);
-            return;
+        try {
+            properties = PropertiesUtil.loadFile(configFile);
         } catch (Exception e) {
-            log.warn("Failed to read {}", CONFIG_NAME, e);
+            log.warn("Failed to read {}", configFile, e);
             return;
         }
 
@@ -60,5 +62,13 @@ public class SitoolkitConfig {
         proxyPort = properties.getProperty("proxyPort");
         proxyUser = properties.getProperty("proxyUser");
         proxyPassword = properties.getProperty("proxyPassword");
+    }
+
+    public Path getConfigFilePath() {
+        return Paths.get(CONFIG_DIR, CONFIG_NAME);
+    }
+
+    public String get(String key) {
+        return properties.getProperty(key);
     }
 }

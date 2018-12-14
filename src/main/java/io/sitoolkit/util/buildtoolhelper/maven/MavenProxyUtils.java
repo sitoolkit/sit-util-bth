@@ -1,8 +1,10 @@
 package io.sitoolkit.util.buildtoolhelper.maven;
 
-import java.io.File;
 import java.nio.file.Files;
-import java.util.Optional;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -11,9 +13,9 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import io.sitoolkit.util.buildtoolhelper.proxysetting.ProxyProtocol;
 import io.sitoolkit.util.buildtoolhelper.proxysetting.ProxySetting;
 import io.sitoolkit.util.buildtoolhelper.proxysetting.ProxyUtils;
 import io.sitoolkit.util.buildtoolhelper.util.XmlUtil;
@@ -30,86 +32,68 @@ public class MavenProxyUtils implements ProxyUtils {
     }
 
     @Override
-    public Optional<ProxySetting> readProxySetting() {
-        File settingsXml = MavenUtils.getUserSettingFile();
-        return readProxySetting(settingsXml);
+    public List<ProxySetting> readProxySetting() {
+        Path settingFile = MavenUtils.getUserSettingFilePath();
+        return readProxySetting(settingFile);
     }
 
-    public Optional<ProxySetting> readProxySetting(File settingsXml) {
-        if (!settingsXml.exists()) {
-            return Optional.empty();
+    public List<ProxySetting> readProxySetting(Path settingFile) {
+        if (!settingFile.toFile().exists()) {
+            return Collections.emptyList();
         }
 
         try {
-            Document document = MavenUtils.parseSettingFile(settingsXml);
+            Document document = MavenUtils.parseSettingFile(settingFile.toFile());
             XPath xpath = XPathFactory.newInstance().newXPath();
 
-            ProxySetting proxySetting = new ProxySetting();
+            List<ProxySetting> proxySettings = new ArrayList<>();
             NodeList proxyList = (NodeList) xpath.evaluate("/settings/proxies/proxy", document,
                     XPathConstants.NODESET);
             for (int num = 0; num < proxyList.getLength(); num++) {
-                NodeList proxy = proxyList.item(num).getChildNodes();
+                Element element = (Element) proxyList.item(num);
 
-                String isActive = "";
-                String host = "";
-                String port = "";
-                String user = "";
-                String password = "";
-                String nonProxyHosts = "";
-                for (int idx = 0; idx < proxy.getLength(); idx++) {
-                    Node proxyItem = proxy.item(idx);
+                String isActive = XmlUtil.getTextContentByTagName(element, "active");
+                String protocol = XmlUtil.getTextContentByTagName(element, "protocol");
+                String host = XmlUtil.getTextContentByTagName(element, "host");
+                String port = XmlUtil.getTextContentByTagName(element, "port");
+                String user = XmlUtil.getTextContentByTagName(element, "username");
+                String password = XmlUtil.getTextContentByTagName(element, "password");
+                String nonProxyHosts = XmlUtil.getTextContentByTagName(element, "nonProxyHosts");
 
-                    switch (proxyItem.getNodeName()) {
-                        case "active":
-                            isActive = proxyItem.getTextContent();
-                            break;
-                        case "host":
-                            host = proxyItem.getTextContent();
-                            break;
-                        case "port":
-                            port = proxyItem.getTextContent();
-                            break;
-                        case "username":
-                            user = proxyItem.getTextContent();
-                            break;
-                        case "password":
-                            password = proxyItem.getTextContent();
-                            break;
-                        case "nonProxyHosts":
-                            nonProxyHosts = proxyItem.getTextContent();
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                if ("true".equals(isActive)
+                        && ProxyProtocol.allLowerCaseNames().contains(protocol)) {
+                    ProxySetting proxySetting = new ProxySetting();
+                    proxySetting.setProxySettings(protocol, host, port, user, password,
+                            nonProxyHosts);
 
-                if ("true".equals(isActive)) {
-                    log.info("read maven proxy settings");
-                    proxySetting.setProxySettings(host, port, user, password, nonProxyHosts);
-                    break;
+                    proxySettings.add(proxySetting);
                 }
             }
 
-            return Optional.of(proxySetting);
+            if (!proxySettings.isEmpty()) {
+                log.info("Use maven proxy settings: {}", settingFile);
+            }
+
+            return proxySettings;
 
         } catch (Exception exp) {
             log.warn("read settings.xml failed", exp);
-            return Optional.empty();
+            return Collections.emptyList();
         }
     }
 
     public boolean writeProxySetting(ProxySetting proxySetting) {
-        File settingsXml = MavenUtils.getUserSettingFile();
+        Path settingFile = MavenUtils.getUserSettingFilePath();
 
         try {
-            if (!settingsXml.exists()) {
+            if (!settingFile.toFile().exists()) {
                 log.info("create user settings.xml");
                 Files.copy(ClassLoader.getSystemResourceAsStream("settings.xml"),
-                        settingsXml.toPath());
+                        settingFile);
             }
 
             log.info("add proxy to settings.xml");
-            Document document = MavenUtils.parseSettingFile(settingsXml);
+            Document document = MavenUtils.parseSettingFile(settingFile.toFile());
 
             Element root = document.getDocumentElement();
             Element proxies = XmlUtil.getChildElement(root, "proxies");
@@ -146,7 +130,7 @@ public class MavenProxyUtils implements ProxyUtils {
             }
 
             proxies.appendChild(proxy);
-            XmlUtil.writeXml(document, settingsXml);
+            XmlUtil.writeXml(document, settingFile.toFile());
 
             return true;
 

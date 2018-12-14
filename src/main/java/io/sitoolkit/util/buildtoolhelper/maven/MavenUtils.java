@@ -87,9 +87,9 @@ public class MavenUtils {
         }
     }
 
-    public static File getUserSettingFile() {
-        File mavenUserHomeDir = new File(System.getProperty("user.home"), ".m2");
-        return new File(mavenUserHomeDir, "settings.xml");
+    public static Path getUserSettingFilePath() {
+        Path mavenUserHomeDir = Paths.get(System.getProperty("user.home"), ".m2");
+        return mavenUserHomeDir.resolve("settings.xml");
     }
 
     public static Document parseSettingFile(File settingFile) throws Exception {

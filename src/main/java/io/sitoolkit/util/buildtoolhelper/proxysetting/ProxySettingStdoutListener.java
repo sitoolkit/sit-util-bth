@@ -21,8 +21,8 @@ public class ProxySettingStdoutListener implements StdoutListener {
         String[] details = line.split(" +");
         switch (details[0]) {
             case "ProxyEnable":
-                if ("0x1".equals(details[2])) {
-                    proxySetting.setProxyActive("true");
+                if (!"0x1".equals(details[2])) {
+                    return;
                 }
                 break;
 
