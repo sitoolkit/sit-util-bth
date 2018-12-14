@@ -32,12 +32,12 @@ public class MavenProxyUtils implements ProxyUtils {
     }
 
     @Override
-    public List<ProxySetting> readProxySetting() {
+    public List<ProxySetting> readProxySettings() {
         Path settingFile = MavenUtils.getUserSettingFilePath();
-        return readProxySetting(settingFile);
+        return readProxySettings(settingFile);
     }
 
-    public List<ProxySetting> readProxySetting(Path settingFile) {
+    public List<ProxySetting> readProxySettings(Path settingFile) {
         if (!settingFile.toFile().exists()) {
             return Collections.emptyList();
         }

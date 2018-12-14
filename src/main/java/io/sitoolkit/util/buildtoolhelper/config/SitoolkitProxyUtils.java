@@ -22,7 +22,7 @@ public class SitoolkitProxyUtils implements ProxyUtils {
     }
 
     @Override
-    public List<ProxySetting> readProxySetting() {
+    public List<ProxySetting> readProxySettings() {
         SitoolkitConfig config = SitoolkitConfig.getInstance();
 
         List<ProxySetting> proxySettings = ProxyProtocol.allLowerCaseNames().stream()

@@ -7,7 +7,7 @@ import io.sitoolkit.util.buildtoolhelper.process.ProcessCommand;
 
 public class ProxySettingProcessClient {
 
-    public ProxySetting getRegistryProxy() {
+    public List<ProxySetting> getRegistryProxies() {
 
         List<String> args = new ArrayList<>();
         args.add("query");
@@ -20,6 +20,6 @@ public class ProxySettingProcessClient {
 
         new ProcessCommand().command("reg").args(args).stdout(proxyStdoutListener).execute();
 
-        return proxyStdoutListener.getProxySetting();
+        return proxyStdoutListener.getProxySettings();
     }
 }

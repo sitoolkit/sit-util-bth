@@ -38,7 +38,7 @@ public class ProxySettingService {
             Optional<List<ProxySetting>> settings = Stream
                     .of(SitoolkitProxyUtils.getInstance(), MavenProxyUtils.getInstance(),
                             GradleProxyUtils.getInstance())
-                    .map(ProxyUtils::readProxySetting).filter((l) -> !l.isEmpty()).findFirst();
+                    .map(ProxyUtils::readProxySettings).filter((l) -> !l.isEmpty()).findFirst();
 
             List<ProxySetting> proxySettings = null;
             if (settings.isPresent()) {
@@ -53,6 +53,12 @@ public class ProxySettingService {
                 // if (!MavenProxyUtils.getInstance().writeProxySetting(resultSetting))
                 // return;
                 // }
+                log.info("read registry proxy settings");
+                ProxySettingProcessClient client = new ProxySettingProcessClient();
+                proxySettings = client.getRegistryProxies();
+                if (!proxySettings.isEmpty()) {
+                    log.info("Use registry proxy settings");
+                }
             }
 
             setProperties(proxySettings);

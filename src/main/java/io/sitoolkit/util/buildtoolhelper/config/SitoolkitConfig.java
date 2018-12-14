@@ -23,6 +23,8 @@ public class SitoolkitConfig {
     @Getter(AccessLevel.NONE)
     private static SitoolkitConfig instance;
 
+    @Setter(AccessLevel.NONE)
+    @Getter(AccessLevel.NONE)
     private Properties properties;
 
     private String proxyHost;

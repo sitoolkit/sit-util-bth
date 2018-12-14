@@ -7,6 +7,8 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+
 import io.sitoolkit.util.buildtoolhelper.proxysetting.ProxyProtocol;
 import io.sitoolkit.util.buildtoolhelper.proxysetting.ProxySetting;
 import io.sitoolkit.util.buildtoolhelper.proxysetting.ProxyUtils;
@@ -24,12 +26,12 @@ public class GradleProxyUtils implements ProxyUtils {
     }
 
     @Override
-    public List<ProxySetting> readProxySetting() {
+    public List<ProxySetting> readProxySettings() {
         Path settingFile = GradleUtils.getUserSettingFilePath();
-        return readProxySetting(settingFile);
+        return readProxySettings(settingFile);
     }
 
-    public List<ProxySetting> readProxySetting(Path settingFile) {
+    public List<ProxySetting> readProxySettings(Path settingFile) {
         if (!settingFile.toFile().exists()) {
             return Collections.emptyList();
         }
@@ -44,6 +46,11 @@ public class GradleProxyUtils implements ProxyUtils {
 
         List<ProxySetting> proxySettings = ProxyProtocol.allLowerCaseNames().stream()
                 .map((protocol) -> {
+                    String host = getProxyProperty(properties, protocol, "proxyHost");
+                    if (StringUtils.isEmpty(host)) {
+                        return null;
+                    }
+
                     ProxySetting proxySetting = new ProxySetting();
                     proxySetting.setProxySettings(protocol,
                             getProxyProperty(properties, protocol, "proxyHost"),
