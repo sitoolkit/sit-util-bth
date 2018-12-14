@@ -44,22 +44,18 @@ public class GradleProxyUtils implements ProxyUtils {
             return Collections.emptyList();
         }
 
-        List<ProxySetting> proxySettings = ProxyProtocol.allLowerCaseNames().stream()
-                .map((protocol) -> {
-                    String host = getProxyProperty(properties, protocol, "proxyHost");
-                    if (StringUtils.isEmpty(host)) {
-                        return null;
-                    }
+        List<ProxySetting> proxySettings = ProxyProtocol.getValueList().stream().map((protocol) -> {
+            String host = getProxyProperty(properties, protocol, "proxyHost");
+            if (StringUtils.isEmpty(host)) {
+                return null;
+            }
 
-                    ProxySetting proxySetting = new ProxySetting();
-                    proxySetting.setProxySettings(protocol,
-                            getProxyProperty(properties, protocol, "proxyHost"),
-                            getProxyProperty(properties, protocol, "proxyPort"),
-                            getProxyProperty(properties, protocol, "proxyUser"),
-                            getProxyProperty(properties, protocol, "proxyPassword"),
-                            getProxyProperty(properties, protocol, "nonProxyHosts"));
-                    return proxySetting;
-                }).filter(Objects::nonNull).collect(Collectors.toList());
+            return new ProxySetting(protocol, getProxyProperty(properties, protocol, "proxyHost"),
+                    getProxyProperty(properties, protocol, "proxyPort"),
+                    getProxyProperty(properties, protocol, "proxyUser"),
+                    getProxyProperty(properties, protocol, "proxyPassword"),
+                    getProxyProperty(properties, protocol, "nonProxyHosts"));
+        }).filter(Objects::nonNull).collect(Collectors.toList());
 
         if (!proxySettings.isEmpty()) {
             log.info("Use gradle proxy settings: {}", settingFile);
@@ -68,7 +64,7 @@ public class GradleProxyUtils implements ProxyUtils {
         return proxySettings;
     }
 
-    private String getProxyProperty(Properties properties, String protocol, String attr) {
+    private String getProxyProperty(Properties properties, ProxyProtocol protocol, String attr) {
         return properties.getProperty("systemProp." + protocol + "." + attr);
     }
 }

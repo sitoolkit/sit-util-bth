@@ -25,22 +25,18 @@ public class SitoolkitProxyUtils implements ProxyUtils {
     public List<ProxySetting> readProxySettings() {
         SitoolkitConfig config = SitoolkitConfig.getInstance();
 
-        List<ProxySetting> proxySettings = ProxyProtocol.allLowerCaseNames().stream()
-                .map((protocol) -> {
-                    ProxySetting proxySetting = new ProxySetting();
-                    String host = config.get("proxy." + protocol + ".host");
-                    if (StringUtils.isEmpty(host)) {
-                        return null;
-                    } else {
-                        proxySetting.setProxySettings(protocol, host,
-                                config.get("proxy." + protocol + ".port"),
-                                config.get("proxy." + protocol + ".user"),
-                                config.get("proxy." + protocol + ".password"),
-                                config.get("proxy." + protocol + ".nonProxyHosts"));
-
-                        return proxySetting;
-                    }
-                }).filter(Objects::nonNull).collect(Collectors.toList());
+        List<ProxySetting> proxySettings = ProxyProtocol.getValueList().stream().map((protocol) -> {
+            String host = config.getProperty("proxy." + protocol + ".host");
+            if (StringUtils.isEmpty(host)) {
+                return null;
+            } else {
+                return new ProxySetting(protocol, host,
+                        config.getProperty("proxy." + protocol + ".port"),
+                        config.getProperty("proxy." + protocol + ".user"),
+                        config.getProperty("proxy." + protocol + ".password"),
+                        config.getProperty("proxy." + protocol + ".nonProxyHosts"));
+            }
+        }).filter(Objects::nonNull).collect(Collectors.toList());
 
         if (!proxySettings.isEmpty()) {
             log.info("Use SI-Toolkit proxy settings: {}",

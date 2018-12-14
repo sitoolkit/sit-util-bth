@@ -60,11 +60,9 @@ public class MavenProxyUtils implements ProxyUtils {
                 String password = XmlUtil.getTextContentByTagName(element, "password");
                 String nonProxyHosts = XmlUtil.getTextContentByTagName(element, "nonProxyHosts");
 
-                if ("true".equals(isActive)
-                        && ProxyProtocol.allLowerCaseNames().contains(protocol)) {
-                    ProxySetting proxySetting = new ProxySetting();
-                    proxySetting.setProxySettings(protocol, host, port, user, password,
-                            nonProxyHosts);
+                if ("true".equals(isActive) && ProxyProtocol.contains(protocol)) {
+                    ProxySetting proxySetting = new ProxySetting(ProxyProtocol.getValue(protocol),
+                            host, port, user, password, nonProxyHosts);
 
                     proxySettings.add(proxySetting);
                 }
@@ -79,64 +77,6 @@ public class MavenProxyUtils implements ProxyUtils {
         } catch (Exception exp) {
             log.warn("read settings.xml failed", exp);
             return Collections.emptyList();
-        }
-    }
-
-    public boolean writeProxySetting(ProxySetting proxySetting) {
-        Path settingFile = MavenUtils.getUserSettingFilePath();
-
-        try {
-            if (!settingFile.toFile().exists()) {
-                log.info("create user settings.xml");
-                Files.copy(ClassLoader.getSystemResourceAsStream("settings.xml"),
-                        settingFile);
-            }
-
-            log.info("add proxy to settings.xml");
-            Document document = MavenUtils.parseSettingFile(settingFile.toFile());
-
-            Element root = document.getDocumentElement();
-            Element proxies = XmlUtil.getChildElement(root, "proxies");
-            if (proxies == null) {
-                proxies = document.createElement("proxies");
-                root.appendChild(proxies);
-            }
-
-            Element proxy = document.createElement("proxy");
-            Element id = document.createElement("id");
-            id.appendChild(document.createTextNode("auto-loaded-by-sit-wt"));
-            proxy.appendChild(id);
-
-            Element active = document.createElement("active");
-            active.appendChild(document.createTextNode("true"));
-            proxy.appendChild(active);
-
-            Element protocol = document.createElement("protocol");
-            protocol.appendChild(document.createTextNode("http"));
-            proxy.appendChild(protocol);
-
-            Element host = document.createElement("host");
-            host.appendChild(document.createTextNode(proxySetting.getProxyHost()));
-            proxy.appendChild(host);
-
-            Element port = document.createElement("port");
-            port.appendChild(document.createTextNode(proxySetting.getProxyPort()));
-            proxy.appendChild(port);
-
-            if (!StringUtils.isEmpty(proxySetting.getNonProxyHosts())) {
-                Element nonProxyHosts = document.createElement("nonProxyHosts");
-                nonProxyHosts.appendChild(document.createTextNode(proxySetting.getNonProxyHosts()));
-                proxy.appendChild(nonProxyHosts);
-            }
-
-            proxies.appendChild(proxy);
-            XmlUtil.writeXml(document, settingFile.toFile());
-
-            return true;
-
-        } catch (Exception exp) {
-            log.warn("write settings.xml failed", exp);
-            return false;
         }
     }
 

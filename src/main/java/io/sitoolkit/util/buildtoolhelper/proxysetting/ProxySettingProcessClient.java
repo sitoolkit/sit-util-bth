@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.sitoolkit.util.buildtoolhelper.process.ProcessCommand;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ProxySettingProcessClient {
 
     public List<ProxySetting> getRegistryProxies() {
@@ -20,6 +22,12 @@ public class ProxySettingProcessClient {
 
         new ProcessCommand().command("reg").args(args).stdout(proxyStdoutListener).execute();
 
-        return proxyStdoutListener.getProxySettings();
+        List<ProxySetting> proxySettings = proxyStdoutListener.getProxySettings();
+
+        if (!proxySettings.isEmpty()) {
+            log.info("Use registry proxy settings");
+        }
+
+        return proxySettings;
     }
 }

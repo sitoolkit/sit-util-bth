@@ -44,21 +44,8 @@ public class ProxySettingService {
             if (settings.isPresent()) {
                 proxySettings = settings.get();
             } else {
-                // TODO read from registry
-                // log.info("read registry proxy settings");
-                // ProxySettingProcessClient client = new ProxySettingProcessClient();
-                // resultSetting = client.getRegistryProxy();
-                //
-                // if (resultSetting.isEnabled()) {
-                // if (!MavenProxyUtils.getInstance().writeProxySetting(resultSetting))
-                // return;
-                // }
-                log.info("read registry proxy settings");
                 ProxySettingProcessClient client = new ProxySettingProcessClient();
                 proxySettings = client.getRegistryProxies();
-                if (!proxySettings.isEmpty()) {
-                    log.info("Use registry proxy settings");
-                }
             }
 
             setProperties(proxySettings);
@@ -78,7 +65,7 @@ public class ProxySettingService {
         log.info("set proxy properties");
 
         proxySettings.stream().forEach((proxySetting) -> {
-            String protocol = proxySetting.getProtocol();
+            ProxyProtocol protocol = proxySetting.getProtocol();
             System.setProperty(protocol + ".proxyHost", proxySetting.getProxyHost());
             System.setProperty(protocol + ".proxyPort", proxySetting.getProxyPort());
 
@@ -93,26 +80,28 @@ public class ProxySettingService {
 
     private void setAuthProperties(List<ProxySetting> proxySettings) {
         System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
-        Map<String, ProxySetting> proxySettingMap = proxySettings.stream().collect(Collectors
-                .toMap(ProxySetting::getProtocol, Function.identity(), (doc1, doc2) -> doc1));
+        Map<ProxyProtocol, ProxySetting> proxySettingMap = proxySettings.stream()
+                .collect(Collectors.toMap(ProxySetting::getProtocol, Function.identity()));
 
         Authenticator.setDefault(new SitoolkitProxyAuthenticator(proxySettingMap));
     }
 
     class SitoolkitProxyAuthenticator extends Authenticator {
-        private Map<String, ProxySetting> proxySettingMap;
+        private Map<ProxyProtocol, ProxySetting> proxySettingMap;
 
-        SitoolkitProxyAuthenticator(Map<String, ProxySetting> proxySettingMap) {
+        SitoolkitProxyAuthenticator(Map<ProxyProtocol, ProxySetting> proxySettingMap) {
             this.proxySettingMap = proxySettingMap;
         }
 
         @Override
         public PasswordAuthentication getPasswordAuthentication() {
-            String protocol = getRequestingURL().getProtocol();
+            String protocolStr = getRequestingURL().getProtocol();
+            ProxyProtocol protocol = ProxyProtocol.getValue(protocolStr);
             ProxySetting proxySetting = proxySettingMap.get(protocol);
+
             String user, password;
             if (proxySetting == null) {
-                log.warn("Proxy authentication setting not found: protocol '{}'", protocol);
+                log.warn("Proxy authentication setting not found: protocol '{}'", protocolStr);
                 user = "";
                 password = "";
             } else {

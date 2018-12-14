@@ -38,16 +38,17 @@ public class ProxySettingStdoutListener implements StdoutListener {
                 String[] protocolDetails = protocolDetail.split("=");
                 String protocol = protocolDetails[0];
 
-                if (ProxyProtocol.allLowerCaseNames().contains(protocol)) {
+                if (ProxyProtocol.contains(protocol)) {
                     String proxyURL = protocolDetails[1];
                     ProxyURL url = parseProxyURL(proxyURL);
 
-                    proxySettings.add(createProxySettingFromBase(protocol, url));
+                    proxySettings
+                            .add(createProxySettingFromBase(ProxyProtocol.getValue(protocol), url));
                 }
             }
         } else {
             ProxyURL url = parseProxyURL(proxyURLs);
-            proxySettings = ProxyProtocol.allLowerCaseNames().stream().map((protocol) -> {
+            proxySettings = ProxyProtocol.getValueList().stream().map((protocol) -> {
                 return createProxySettingFromBase(protocol, url);
             }).collect(Collectors.toList());
         }
@@ -82,12 +83,10 @@ public class ProxySettingStdoutListener implements StdoutListener {
         }
     }
 
-    private ProxySetting createProxySettingFromBase(String protocol, ProxyURL url) {
-        ProxySetting proxySetting = new ProxySetting();
-        proxySetting.setProxySettings(protocol, url.getHost(), url.getPort(),
+    private ProxySetting createProxySettingFromBase(ProxyProtocol protocol, ProxyURL url) {
+        return new ProxySetting(protocol, url.getHost(), url.getPort(),
                 baseSetting.getProxyUser(), baseSetting.getProxyPassword(),
                 baseSetting.getNonProxyHosts());
-        return proxySetting;
     }
 
     private ProxyURL parseProxyURL(String proxyURL) {
