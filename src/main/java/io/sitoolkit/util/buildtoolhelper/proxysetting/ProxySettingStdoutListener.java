@@ -1,10 +1,24 @@
 package io.sitoolkit.util.buildtoolhelper.proxysetting;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+
 import io.sitoolkit.util.buildtoolhelper.process.StdoutListener;
+import lombok.AllArgsConstructor;
+import lombok.Value;
 
 public class ProxySettingStdoutListener implements StdoutListener {
 
-    private ProxySetting proxySetting = new ProxySetting();
+    private boolean isProxyEnabled = false;
+
+    private boolean isParsed = false;
+
+    private ProxySetting baseSetting = new ProxySetting();
+
+    private List<ProxySetting> proxySettings = new ArrayList<>();
 
     @Override
     public void nextLine(String line) {
@@ -13,49 +27,84 @@ public class ProxySettingStdoutListener implements StdoutListener {
         }
     }
 
-    public ProxySetting getProxySetting() {
-        return proxySetting;
+    public void parseProxyHost() {
+        String proxyURLs = baseSetting.getProxyHost();
+        if (!isProxyEnabled || StringUtils.isEmpty(proxyURLs)) {
+            return;
+        }
+
+        if (proxyURLs.contains(";")) {
+            for (String protocolDetail : proxyURLs.split(";")) {
+                String[] protocolDetails = protocolDetail.split("=");
+                String protocol = protocolDetails[0];
+
+                if (ProxyProtocol.contains(protocol)) {
+                    String proxyURL = protocolDetails[1];
+                    ProxyURL url = parseProxyURL(proxyURL);
+
+                    proxySettings
+                            .add(createProxySettingFromBase(ProxyProtocol.getValue(protocol), url));
+                }
+            }
+        } else {
+            ProxyURL url = parseProxyURL(proxyURLs);
+            proxySettings = ProxyProtocol.getValueList().stream().map((protocol) -> {
+                return createProxySettingFromBase(protocol, url);
+            }).collect(Collectors.toList());
+        }
+
+        isParsed = true;
     }
 
-    void parse(String line) {
+    public List<ProxySetting> getProxySettings() {
+        if (!isParsed) {
+            parseProxyHost();
+        }
+
+        return proxySettings;
+    }
+
+    private void parse(String line) {
         String[] details = line.split(" +");
         switch (details[0]) {
-            case "ProxyEnable":
-                if ("0x1".equals(details[2])) {
-                    proxySetting.setProxyActive("true");
-                }
-                break;
+        case "ProxyEnable":
+            if ("0x1".equals(details[2])) {
+                isProxyEnabled = true;
+            }
+            break;
 
-            case "ProxyServer":
-                if (details[2].contains(";")) {
-                    for (String protocolDetail : details[2].split(";")) {
-                        String[] protocolDetails = protocolDetail.split("[=:]");
-                        String protocol = protocolDetails[0];
+        case "ProxyServer":
+            baseSetting.setProxyHost(details[2]);
+            break;
 
-                        if ("http".equals(protocol) || "https".equals(protocol)) {
-                            proxySetting.setProxyHost(protocolDetails[1]);
-                            if (protocolDetails.length == 3) {
-                                proxySetting.setProxyPort(protocolDetails[2]);
-                            } else {
-                                proxySetting.setProxyPort("80");
-                            }
-                            break;
-                        }
-                    }
-                } else {
-                    String[] settings = details[2].split(":");
-                    proxySetting.setProxyHost(settings[0]);
-                    if (settings.length == 2) {
-                        proxySetting.setProxyPort(settings[1]);
-                    } else {
-                        proxySetting.setProxyPort("80");
-                    }
-                }
-                break;
-
-            case "ProxyOverride":
-                proxySetting.setNonProxyHosts(details[2].replaceAll(";", "|"));
-                break;
+        case "ProxyOverride":
+            baseSetting.setNonProxyHosts(details[2].replaceAll(";", "|"));
+            break;
         }
+    }
+
+    private ProxySetting createProxySettingFromBase(ProxyProtocol protocol, ProxyURL url) {
+        return new ProxySetting(protocol, url.getHost(), url.getPort(),
+                baseSetting.getProxyUser(), baseSetting.getProxyPassword(),
+                baseSetting.getNonProxyHosts());
+    }
+
+    private ProxyURL parseProxyURL(String proxyURL) {
+        String[] settings = proxyURL.split(":");
+        String host = settings[0];
+        String port;
+        if (settings.length == 2) {
+            port = settings[1];
+        } else {
+            port = "80";
+        }
+        return new ProxyURL(host, port);
+    }
+
+    @Value
+    @AllArgsConstructor
+    private class ProxyURL {
+        private String host;
+        private String port;
     }
 }

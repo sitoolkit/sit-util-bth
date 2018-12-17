@@ -47,4 +47,8 @@ public class GradleUtils {
         return "";
     }
 
+    public static Path getUserSettingFilePath() {
+        Path gradleUserHomeDir = Paths.get(System.getProperty("user.home"), ".gradle");
+        return gradleUserHomeDir.resolve("gradle.properties");
+    }
 }
