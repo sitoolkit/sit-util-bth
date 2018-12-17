@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public enum ProxyProtocol {
-    HTTP, HTTPS;
+    HTTP, HTTPS, FTP;
 
     private static Map<ProxyProtocol, String> nameMap = new HashMap<>();
 
