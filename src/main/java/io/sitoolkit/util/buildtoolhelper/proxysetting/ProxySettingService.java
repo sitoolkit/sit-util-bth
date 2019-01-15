@@ -9,6 +9,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.SystemUtils;
+
 import io.sitoolkit.util.buildtoolhelper.config.SitoolkitProxyUtils;
 import io.sitoolkit.util.buildtoolhelper.gradle.GradleProxyUtils;
 import io.sitoolkit.util.buildtoolhelper.maven.MavenProxyUtils;
@@ -44,11 +46,15 @@ public class ProxySettingService {
             if (settings.isPresent()) {
                 proxySettings = settings.get();
             } else {
-                ProxySettingProcessClient client = new ProxySettingProcessClient();
-                proxySettings = client.getRegistryProxies();
+                if (SystemUtils.IS_OS_WINDOWS) {
+                    ProxySettingProcessClient client = new ProxySettingProcessClient();
+                    proxySettings = client.getRegistryProxies();
+                }
             }
 
-            setProperties(proxySettings);
+            if (proxySettings != null) {
+                setProperties(proxySettings);
+            }
         } catch (Exception exp) {
             log.warn("set proxy failed", exp);
         } finally {

@@ -50,6 +50,9 @@ public class SitoolkitConfig {
     }
 
     public String getProperty(String key) {
+        if (properties == null) {
+            return "";
+        }
         return properties.getProperty(key);
     }
 }
