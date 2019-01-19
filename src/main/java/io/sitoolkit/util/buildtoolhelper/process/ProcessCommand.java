@@ -42,6 +42,16 @@ public class ProcessCommand {
         return this;
     }
 
+    public ProcessCommand stderr(StdoutListener stderrListener) {
+        stderrListeners.add(stderrListener);
+        return this;
+    }
+
+    public ProcessCommand exitCallback(ProcessExitCallback exitCallback) {
+        exitCallbacks.add(exitCallback);
+        return this;
+    }
+
     public ProcessCommand args(String... args) {
         this.args = Arrays.asList(args);
         return this;
