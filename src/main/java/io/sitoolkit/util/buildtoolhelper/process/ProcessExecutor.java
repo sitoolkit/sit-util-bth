@@ -1,6 +1,8 @@
 package io.sitoolkit.util.buildtoolhelper.process;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -30,8 +32,8 @@ public class ProcessExecutor {
 
       exitCode = waitForExit(process, command.getExitCallbacks());
 
-    } catch (Exception e) {
-      throw new UnExpectedException(e);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
     } finally {
       ProcessConversation.destroy(process);
     }
@@ -113,7 +115,7 @@ public class ProcessExecutor {
 
     } catch (InterruptedException e) {
 
-      Thread.interrupted();
+      Thread.currentThread().interrupt();
       log.warn(e.getLocalizedMessage(), e);
 
     } finally {
