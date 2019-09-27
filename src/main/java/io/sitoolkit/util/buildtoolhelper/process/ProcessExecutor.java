@@ -15,10 +15,11 @@ public class ProcessExecutor {
 
   private StringBuilderStdoutListener defaultStderrListener = new StringBuilderStdoutListener();
 
-  public void execute(ProcessCommand command) {
+  public int execute(ProcessCommand command) {
 
     ProcessBuilder pb = toBuilder(command);
     Process process = null;
+    int exitCode = 0;
 
     try {
       process = pb.start();
@@ -27,7 +28,7 @@ public class ProcessExecutor {
       scanStream(process.getInputStream(), stdoutListeners(command));
       scanStream(process.getErrorStream(), stderrListeners(command));
 
-      waitForExit(process, command.getExitCallbacks());
+      exitCode = waitForExit(process, command.getExitCallbacks());
 
     } catch (Exception e) {
       throw new UnExpectedException(e);
@@ -35,6 +36,7 @@ public class ProcessExecutor {
       ProcessConversation.destroy(process);
     }
 
+    return exitCode;
   }
 
   public ProcessConversation executeAsync(ProcessCommand params) {
@@ -101,7 +103,7 @@ public class ProcessExecutor {
     }
   }
 
-  private void waitForExit(Process process, List<ProcessExitCallback> callbacks) {
+  private int waitForExit(Process process, List<ProcessExitCallback> callbacks) {
     int exitCode = 0;
 
     try {
@@ -127,6 +129,8 @@ public class ProcessExecutor {
       }
 
     }
+
+    return exitCode;
   }
 
 }
