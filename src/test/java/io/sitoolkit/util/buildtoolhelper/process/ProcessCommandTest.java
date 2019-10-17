@@ -24,7 +24,7 @@ public class ProcessCommandTest {
   public void testStdoutLog() {
 
     if (SystemUtils.IS_OS_MAC) {
-      int exitCode = new ProcessCommand().command("bash").args("echo", "success.")
+      int exitCode = new ProcessCommand().command("echo").args("success.")
           .stdout(log::info).stderr(log::warn)
           .execute();
       assertThat(exitCode, is(0));
@@ -40,7 +40,7 @@ public class ProcessCommandTest {
   public void testStderrLog() {
 
     if (SystemUtils.IS_OS_MAC) {
-      int exitCode = new ProcessCommand().command("bash").args("○")
+      int exitCode = new ProcessCommand().command("ls").args("-○")
           .stdout(log::info).stderr(log::warn)
           .execute();
       assertThat(exitCode, is(1));
