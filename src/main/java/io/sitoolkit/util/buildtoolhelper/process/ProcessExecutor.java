@@ -8,7 +8,8 @@ import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.*;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -18,24 +19,25 @@ public class ProcessExecutor {
 
   public int execute(ProcessCommand command) {
 
-    ProcessConversation conversation = new ProcessConversation();
-    Process process = null;
-
     ProcessBuilder pb = toBuilder(command);
-
+    Process process = null;
     int exitCode = 0;
 
     try {
       process = pb.start();
-      conversation.init(process);
       log.info("process {} starts {}", new Object[] { process, command.getWholeCommand() });
 
-      ExecutorService excutor = conversation.getExecutor();
+      InputStream stdout = process.getInputStream();
+      InputStream stderr = process.getErrorStream();
 
-      excutor.execute(
-          () -> scanStream(conversation.getProcess().getInputStream(), stdoutListeners(command)));
-      excutor.execute(
-          () -> scanStream(conversation.getProcess().getErrorStream(), stderrListeners(command)));
+      List<Runnable> runnables = List.of(
+              () -> scanStream(stdout, stdoutListeners(command)),
+              () -> scanStream(stderr, stderrListeners(command)));
+
+      ExecutorService executor = Executors.newFixedThreadPool(runnables.size());
+      runnables.stream().forEach(executor::execute);
+
+      command.getExitCallbacks().add(e -> shutdownAndAwaitTermination(executor, 60));
 
       exitCode = waitForExit(process, command.getExitCallbacks());
 
@@ -109,6 +111,31 @@ public class ProcessExecutor {
           listener.nextLine(line);
         }
       }
+    }
+  }
+
+
+  private void shutdownAndAwaitTermination(ExecutorService executor, long awaitTime) {
+    executor.shutdown();
+    log.debug("Shutdown executor: {}", executor);
+
+    try {
+
+      if (!executor.awaitTermination(awaitTime, TimeUnit.SECONDS)) {
+        executor.shutdownNow();
+
+        if (!executor.awaitTermination(awaitTime, TimeUnit.SECONDS)) {
+          log.error("Executor did not terminate: {}", executor);
+        }
+
+      }
+    } catch (InterruptedException ie) {
+
+      executor.shutdownNow();
+
+      Thread.currentThread().interrupt();
+      log.warn(ie.getLocalizedMessage(), ie);
+
     }
   }
 
