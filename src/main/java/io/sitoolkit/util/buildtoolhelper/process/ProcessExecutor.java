@@ -1,5 +1,7 @@
 package io.sitoolkit.util.buildtoolhelper.process;
 
+import io.sitoolkit.util.buildtoolhelper.UnExpectedException;
+import io.sitoolkit.util.buildtoolhelper.util.EnvUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -7,9 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
-
-import io.sitoolkit.util.buildtoolhelper.UnExpectedException;
-import io.sitoolkit.util.buildtoolhelper.util.EnvUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -19,16 +18,24 @@ public class ProcessExecutor {
 
   public int execute(ProcessCommand command) {
 
-    ProcessBuilder pb = toBuilder(command);
+    ProcessConversation conversation = new ProcessConversation();
     Process process = null;
+
+    ProcessBuilder pb = toBuilder(command);
+
     int exitCode = 0;
 
     try {
       process = pb.start();
+      conversation.init(process);
       log.info("process {} starts {}", new Object[] { process, command.getWholeCommand() });
 
-      scanStream(process.getInputStream(), stdoutListeners(command));
-      scanStream(process.getErrorStream(), stderrListeners(command));
+      ExecutorService excutor = conversation.getExecutor();
+
+      excutor.execute(
+          () -> scanStream(conversation.getProcess().getInputStream(), stdoutListeners(command)));
+      excutor.execute(
+          () -> scanStream(conversation.getProcess().getErrorStream(), stderrListeners(command)));
 
       exitCode = waitForExit(process, command.getExitCallbacks());
 
