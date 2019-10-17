@@ -3,13 +3,6 @@ package io.sitoolkit.util.buildtoolhelper.process;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import io.sitoolkit.util.buildtoolhelper.maven.MavenProject;
-import io.sitoolkit.util.buildtoolhelper.maven.MavenUtils;
-import java.io.File;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.Test;
