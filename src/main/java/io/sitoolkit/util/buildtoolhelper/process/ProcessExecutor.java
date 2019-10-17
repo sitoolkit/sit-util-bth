@@ -35,7 +35,7 @@ public class ProcessExecutor {
               () -> scanStream(stderr, stderrListeners(command)));
 
       ExecutorService executor = Executors.newFixedThreadPool(runnables.size());
-      runnables.stream().forEach(executor::execute);
+      runnables.forEach(executor::execute);
 
       command.getExitCallbacks().add(e -> shutdownAndAwaitTermination(executor, 60));
 
