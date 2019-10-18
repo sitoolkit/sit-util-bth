@@ -19,36 +19,4 @@ public class ProcessCommandTest {
     }
 
   }
-
-  @Test
-  public void testStdoutLog() {
-
-    if (SystemUtils.IS_OS_MAC) {
-      int exitCode = new ProcessCommand().command("echo").args("success.")
-          .stdout(log::info).stderr(log::warn)
-          .execute();
-      assertThat(exitCode, is(0));
-    } else if (SystemUtils.IS_OS_WINDOWS) {
-      int exitCode = new ProcessCommand().command("cmd.exe").args("/c", "echo", "success.")
-          .stdout(log::info).stderr(log::warn)
-          .execute();
-      assertThat(exitCode, is(0));
-    }
-  }
-
-  @Test
-  public void testStderrLog() {
-
-    if (SystemUtils.IS_OS_MAC) {
-      int exitCode = new ProcessCommand().command("ls").args("-○")
-          .stdout(log::info).stderr(log::warn)
-          .execute();
-      assertThat(exitCode, is(1));
-    } else if (SystemUtils.IS_OS_WINDOWS) {
-      int exitCode = new ProcessCommand().command("cmd.exe").args("/c", "○")
-          .stdout(log::info).stderr(log::warn)
-          .execute();
-      assertThat(exitCode, is(1));
-    }
-  }
 }
