@@ -11,6 +11,7 @@ import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -80,6 +81,21 @@ public class ProcessExecutor {
     return conversation;
 
   }
+
+  public void executePipeline(List<ProcessCommand> commands) {
+
+    commands.forEach(command -> log.info("pipelineCommand {}", command.getWholeCommand()));
+    List<ProcessBuilder> builders = commands.stream().map(this::toBuilder).collect(Collectors.toList());
+    List<Process> processes = new ArrayList<>();
+
+    try {
+      processes = ProcessBuilder.startPipeline(builders);
+    } catch (IOException ie) {
+      throw new UncheckedIOException(ie);
+    } finally {
+      processes.stream().forEach(ProcessConversation::destroy);
+    }
+  } 
 
   private List<StdoutListener> stdoutListeners(ProcessCommand params) {
     List<StdoutListener> stdoutListeners = new ArrayList<>();
