@@ -86,14 +86,16 @@ public class ProcessExecutor {
 
     commands.forEach(command -> log.info("pipelineCommand {}", command.getWholeCommand()));
     List<ProcessBuilder> builders = commands.stream().map(this::toBuilder).collect(Collectors.toList());
-    List<Process> processes = new ArrayList<>();
 
     try {
-      processes = ProcessBuilder.startPipeline(builders);
+      List<Process> processes = ProcessBuilder.startPipeline(builders);
+      Process lastProcess = processes.get(processes.size()-1);
+      ProcessCommand lastProcessCommand = commands.get(commands.size()-1);
+      scanStream(lastProcess.getInputStream(), stdoutListeners(lastProcessCommand));
+      scanStream(lastProcess.getErrorStream(), stderrListeners(lastProcessCommand));
+      ProcessConversation.destroy(lastProcess);
     } catch (IOException ie) {
       throw new UncheckedIOException(ie);
-    } finally {
-      processes.stream().forEach(ProcessConversation::destroy);
     }
   } 
 
