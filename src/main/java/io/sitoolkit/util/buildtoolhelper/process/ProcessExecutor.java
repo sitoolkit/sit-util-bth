@@ -82,21 +82,25 @@ public class ProcessExecutor {
 
   }
 
-  public void executePipeline(List<ProcessCommand> commands) {
+  public int executePipeline(List<ProcessCommand> commands) {
 
     commands.forEach(command -> log.info("pipelineCommand {}", command.getWholeCommand()));
     List<ProcessBuilder> builders = commands.stream().map(this::toBuilder).collect(Collectors.toList());
+    int exitCode = 0;
 
     try {
       List<Process> processes = ProcessBuilder.startPipeline(builders);
-      Process lastProcess = processes.get(processes.size()-1);
-      ProcessCommand lastProcessCommand = commands.get(commands.size()-1);
+      Process lastProcess = processes.get(processes.size() - 1);
+      ProcessCommand lastProcessCommand = commands.get(commands.size() - 1);
       scanStream(lastProcess.getInputStream(), stdoutListeners(lastProcessCommand));
       scanStream(lastProcess.getErrorStream(), stderrListeners(lastProcessCommand));
+      exitCode = waitForExit(lastProcess, lastProcessCommand.getExitCallbacks());
       ProcessConversation.destroy(lastProcess);
     } catch (IOException ie) {
       throw new UncheckedIOException(ie);
     }
+    
+    return exitCode;
   } 
 
   private List<StdoutListener> stdoutListeners(ProcessCommand params) {
