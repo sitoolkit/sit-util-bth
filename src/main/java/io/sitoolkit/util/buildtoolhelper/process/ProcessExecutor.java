@@ -32,7 +32,7 @@ public class ProcessExecutor {
       process = pb.start();
       log.info("process {} starts {}", new Object[] { process, command.getWholeCommand() });
 
-      readStdin(command.getStdin(), process.getOutputStream());
+      writeStdin(command.getStdin(), process.getOutputStream());
     
       InputStream stdout = process.getInputStream();
       InputStream stderr = process.getErrorStream();
@@ -57,7 +57,7 @@ public class ProcessExecutor {
     return exitCode;
   }
 
-  private void readStdin(String stdinStr, OutputStream stdin) throws IOException {
+  private void writeStdin(String stdinStr, OutputStream stdin) throws IOException {
     if (StringUtils.isNotEmpty(stdinStr)) {
       stdin.write(stdinStr.getBytes());
       stdin.flush();
