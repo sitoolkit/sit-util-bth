@@ -18,6 +18,7 @@ public class ProcessCommand {
   private Path currentDirectory;
   private Map<String, String> env = new HashMap<>();
   private String command;
+  private String stdin;
   private List<String> args = new ArrayList<>();
   private List<StdoutListener> stdoutListeners = new ArrayList<>();
   private List<StdoutListener> stderrListeners = new ArrayList<>();
@@ -34,6 +35,11 @@ public class ProcessCommand {
 
   public ProcessCommand command(String command) {
     this.command = command;
+    return this;
+  }
+
+  public ProcessCommand stdin(String stdin) {
+    this.stdin = stdin;
     return this;
   }
 

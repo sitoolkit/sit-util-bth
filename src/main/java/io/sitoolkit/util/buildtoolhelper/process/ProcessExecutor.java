@@ -4,6 +4,7 @@ import io.sitoolkit.util.buildtoolhelper.UnExpectedException;
 import io.sitoolkit.util.buildtoolhelper.util.EnvUtils;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,8 @@ import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,6 +32,8 @@ public class ProcessExecutor {
       process = pb.start();
       log.info("process {} starts {}", new Object[] { process, command.getWholeCommand() });
 
+      writeStdin(command.getStdin(), process.getOutputStream());
+    
       InputStream stdout = process.getInputStream();
       InputStream stderr = process.getErrorStream();
 
@@ -50,6 +55,14 @@ public class ProcessExecutor {
     }
 
     return exitCode;
+  }
+
+  private void writeStdin(String stdinStr, OutputStream stdin) throws IOException {
+    if (StringUtils.isNotEmpty(stdinStr)) {
+      stdin.write(stdinStr.getBytes());
+      stdin.flush();
+      stdin.close();
+    }
   }
 
   public ProcessConversation executeAsync(ProcessCommand params) {
